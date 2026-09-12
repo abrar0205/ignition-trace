@@ -1,0 +1,15 @@
+.git
+.venv
+**/node_modules
+**/.next
+**/.git
+**/dist
+**/out
+**/.wrangler
+**/.sites-runtime
+**/.env*
+**/__pycache__
+runs
+android
+tests
+

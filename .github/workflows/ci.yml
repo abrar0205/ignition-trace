@@ -1,0 +1,83 @@
+name: Build and test
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: pip install -e '.[dev]'
+      - run: ruff check src tests scripts
+      - run: pytest -q
+      - run: python scripts/export_fixtures.py && git diff --exit-code tests/fixtures docs/trace.schema.json
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install -g pnpm@11.25.0
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - run: pnpm typecheck
+      - run: pnpm build:static
+        env:
+          NEXT_PUBLIC_BASE_PATH: /ignition-trace
+      - uses: actions/upload-artifact@v4
+        with:
+          name: workbench-static
+          path: web/out
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - run: gradle --no-daemon :app:assembleDebug :app:testDebugUnitTest
+        working-directory: android
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ignition-trace-recorder-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t ignition-trace:test .
+      - run: |
+          docker run -d --name ignition -p 127.0.0.1:8000:8000 ignition-trace:test
+          for attempt in $(seq 1 20); do
+            if curl -fsS http://localhost:8000/api/v1/health; then break; fi
+            sleep 1
+          done
+          curl -fsS http://localhost:8000/ | grep -q IgnitionTrace
+          curl -fsS http://localhost:8000/api/v1/demo/clean -o /tmp/trace.json
+          curl -fsS -H 'Content-Type: application/json' --data-binary @/tmp/trace.json http://localhost:8000/api/v1/traces
+      - if: always()
+        run: docker logs ignition || true
+
