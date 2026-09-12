@@ -1,0 +1,165 @@
+{
+  "$defs": {
+    "Event": {
+      "additionalProperties": false,
+      "properties": {
+        "seq": {
+          "maximum": 1000000,
+          "minimum": 0,
+          "title": "Seq",
+          "type": "integer"
+        },
+        "t_ms": {
+          "maximum": 86400000,
+          "minimum": 0,
+          "title": "T Ms",
+          "type": "number"
+        },
+        "source": {
+          "maxLength": 80,
+          "minLength": 1,
+          "title": "Source",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "signal",
+            "frame",
+            "span",
+            "audio",
+            "playback",
+            "lifecycle"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 120,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "string"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "duration_ms": {
+          "anyOf": [
+            {
+              "maximum": 86400000,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duration Ms"
+        },
+        "correlation_id": {
+          "anyOf": [
+            {
+              "maxLength": 80,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Correlation Id"
+        }
+      },
+      "required": [
+        "seq",
+        "t_ms",
+        "source",
+        "kind",
+        "name"
+      ],
+      "title": "Event",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "title": {
+      "maxLength": 120,
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    },
+    "source": {
+      "enum": [
+        "synthetic",
+        "android",
+        "imported"
+      ],
+      "title": "Source",
+      "type": "string"
+    },
+    "duration_ms": {
+      "maximum": 86400000,
+      "minimum": 0,
+      "title": "Duration Ms",
+      "type": "number"
+    },
+    "clock": {
+      "const": "session-monotonic-ms",
+      "default": "session-monotonic-ms",
+      "title": "Clock",
+      "type": "string"
+    },
+    "scenario": {
+      "default": "recording",
+      "maxLength": 80,
+      "title": "Scenario",
+      "type": "string"
+    },
+    "seed": {
+      "default": 42,
+      "maximum": 4294967295,
+      "minimum": 0,
+      "title": "Seed",
+      "type": "integer"
+    },
+    "events": {
+      "items": {
+        "$ref": "#/$defs/Event"
+      },
+      "maxItems": 100000,
+      "minItems": 1,
+      "title": "Events",
+      "type": "array"
+    }
+  },
+  "required": [
+    "title",
+    "source",
+    "duration_ms",
+    "events"
+  ],
+  "title": "Trace",
+  "type": "object"
+}
