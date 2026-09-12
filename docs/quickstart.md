@@ -21,7 +21,8 @@ Requirements: Python 3.11+, Node 22.13+ and pnpm 11.25.0. JDK/Android SDK are on
 ```sh
 python -m venv .venv
 . .venv/bin/activate
-pip install -e '.[dev]'
+pip install --require-hashes -r requirements-dev.txt
+pip install --no-deps -e .
 cd web
 pnpm install --frozen-lockfile
 pnpm build:static
@@ -70,4 +71,3 @@ Set `IGNITION_DB` to choose a database path and `IGNITION_WEB_DIR` to choose sta
 3. Wait for the deployment job to succeed; open https://abrar0205.github.io/ignition-trace/.
 
 The workflow builds with `/ignition-trace` as its base path. Pages hosts the browser workbench; use the local installation for SQLite and the API. The README provides the entry link for repository visitors.
-

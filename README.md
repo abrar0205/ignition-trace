@@ -34,7 +34,8 @@ With Python 3.11+:
 ```sh
 python -m venv .venv
 . .venv/bin/activate
-pip install -e '.[dev]'
+pip install --require-hashes -r requirements-dev.txt
+pip install --no-deps -e .
 ignition-trace demo --scenario mixed --seed 42
 ignition-trace replay runs/demo/trace.json --at-ms 20400
 ignition-trace analyze runs/demo/trace.json --fail-on-findings
@@ -85,4 +86,3 @@ Use Node 22.13+ and the pnpm version in `web/package.json`. Android uses JDK 17,
 [Trace contract](docs/trace-contract.md) · [JSON Schema](docs/trace.schema.json) · [Security](SECURITY.md) · [Contributing](CONTRIBUTING.md) · [Release notes](CHANGELOG.md)
 
 Built and maintained by [Abrar](https://github.com/abrar0205). MIT licensed; third-party notices are retained alongside vendored components.
-
